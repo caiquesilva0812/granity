@@ -82,7 +82,7 @@ export const useFeatureStore = defineStore("feature", {
 - Cores semânticas via variáveis CSS: `var(--text)`, `var(--surface)`, `var(--border)`, `var(--canvas)`
 - Dark/light mode via classe `.dark` no `<html>` (gerenciado por `stores/ui.ts`)
 - Cor primária: `bg-primary` / `text-primary` (índigo `#6366f1`)
-- Sidebar usa gradiente `from-indigo-700 to-violet-800` — manter consistência visual
+- Sidebar e elementos de destaque usam `bg-blue-700` / `bg-blue-600` — sem gradiente, azul sólido
 
 ### Padrão de página
 ```html
@@ -196,8 +196,8 @@ export const useFeatureStore = defineStore("feature", {
 ```
 
 ### Navbar — dropdown de usuário
-- Avatar no botão: círculo com as **duas iniciais** (primeiro + último nome), gradiente `from-indigo-500 to-violet-600`
+- Avatar no botão: círculo com as **duas iniciais** (primeiro + último nome), `bg-blue-600`
 - Dropdown: `var(--surface)` background (adapta ao tema)
-- Topo do dropdown: card com gradiente `from-indigo-600 to-violet-700` (nome + e-mail + avatar `bg-white/20`)
+- Topo do dropdown: card com `bg-blue-600` (nome + e-mail + avatar `bg-white/20`)
 - Dark mode toggle está **dentro do dropdown** (não na navbar diretamente)
 - Backdrop `fixed inset-0 z-10` fecha o dropdown; container do dropdown em `z-20`

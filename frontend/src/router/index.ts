@@ -21,8 +21,10 @@ const routes: RouteRecordRaw[] = [
       { path: "estoque",       name: "stock-index",       component: () => import("../views/stock/StockIndexView.vue") },
       { path: "vendas",        name: "sale-index",        component: () => import("../views/sales/SaleIndexView.vue") },
       { path: "vendas/registrar",   name: "sale-create",  component: () => import("../views/sales/SaleCreateView.vue") },
-      { path: "funcionarios",  name: "employee-index",    component: () => import("../views/employees/EmployeeIndexView.vue") },
-      { path: "configuracoes", name: "settings",          component: () => import("../views/settings/SettingsView.vue") },
+      { path: "funcionarios",          name: "employee-index",    component: () => import("../views/employees/EmployeeIndexView.vue") },
+      { path: "configuracoes",         name: "settings",          component: () => import("../views/settings/SettingsView.vue") },
+      { path: "configuracoes/empresa", name: "settings-empresa",  component: () => import("../views/settings/SettingsEmpresaView.vue") },
+      { path: "configuracoes/usuarios",name: "settings-usuarios", component: () => import("../views/settings/SettingsUsuariosView.vue") },
     ],
   },
 ];

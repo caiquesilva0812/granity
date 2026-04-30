@@ -34,27 +34,15 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <div class="lg:col-span-2 rounded-xl p-4 lg:p-5 border" :style="{ background: 'var(--surface)', borderColor: 'var(--border)' }">
         <h3 class="font-semibold mb-4 lg:mb-5" :style="{ color: 'var(--text)' }">Volume Extraído por Mês (m³)</h3>
-        <div class="flex items-end gap-2 lg:gap-3 h-32 lg:h-36 px-2">
-          <div v-for="bar in productionBars" :key="bar.month" class="flex-1 flex flex-col items-center gap-1.5">
-            <span class="text-xs font-medium" :style="{ color: 'var(--text-muted)' }">{{ bar.value }}</span>
-            <div class="w-full bg-indigo-500 rounded-t-md" :style="{ height: bar.pct + '%' }" />
-            <span class="text-xs" :style="{ color: 'var(--text-muted)' }">{{ bar.month }}</span>
-          </div>
+        <div class="h-40 lg:h-48">
+          <Bar :data="barData" :options="barOptions" />
         </div>
       </div>
 
       <div class="rounded-xl p-4 lg:p-5 border" :style="{ background: 'var(--surface)', borderColor: 'var(--border)' }">
-        <h3 class="font-semibold mb-4 lg:mb-5" :style="{ color: 'var(--text)' }">Custos por Categoria</h3>
-        <div class="space-y-3.5">
-          <div v-for="cat in costBreakdown" :key="cat.label">
-            <div class="flex justify-between text-sm mb-1.5">
-              <span :style="{ color: 'var(--text)' }">{{ cat.label }}</span>
-              <span :style="{ color: 'var(--text-muted)' }">{{ cat.pct }}%</span>
-            </div>
-            <div class="h-1.5 rounded-full" :style="{ background: 'var(--border)' }">
-              <div class="h-full rounded-full" :class="cat.color" :style="{ width: cat.pct + '%' }" />
-            </div>
-          </div>
+        <h3 class="font-semibold mb-2" :style="{ color: 'var(--text)' }">Custos por Categoria</h3>
+        <div class="h-56 lg:h-64">
+          <Doughnut :data="doughnutData" :options="doughnutOptions" />
         </div>
       </div>
     </div>
@@ -90,7 +78,23 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import { TrendingUp, TrendingDown, Layers, Wallet, Package, ShoppingCart } from "lucide-vue-next";
+import { Bar, Doughnut } from "vue-chartjs";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { useUiStore } from "../../stores/ui";
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
+
+const uiStore = useUiStore();
 
 const statCards = [
   { label: "Volume Extraído",   value: "312,4 m³",   trend: 8,   icon: Layers,       iconBg: "bg-indigo-500/10", iconColor: "text-indigo-500" },
@@ -100,22 +104,111 @@ const statCards = [
   { label: "Vendas do Mês",     value: "R$ 124.000", trend: 15,  icon: ShoppingCart, iconBg: "bg-green-500/10",  iconColor: "text-green-500" },
 ];
 
-const productionBars = [
-  { month: "Nov", value: "248", pct: 60 },
-  { month: "Dez", value: "214", pct: 52 },
-  { month: "Jan", value: "271", pct: 66 },
-  { month: "Fev", value: "255", pct: 62 },
-  { month: "Mar", value: "289", pct: 70 },
-  { month: "Abr", value: "312", pct: 76 },
+// ── Bar chart ────────────────────────────────────────────────────────────────
+
+const productionData = [
+  { month: "Nov", value: 248 },
+  { month: "Dez", value: 214 },
+  { month: "Jan", value: 271 },
+  { month: "Fev", value: 255 },
+  { month: "Mar", value: 289 },
+  { month: "Abr", value: 312 },
 ];
 
-const costBreakdown = [
-  { label: "Diesel",      pct: 38, color: "bg-indigo-500" },
-  { label: "Mão de Obra", pct: 32, color: "bg-violet-500" },
-  { label: "Manutenção",  pct: 18, color: "bg-blue-400" },
-  { label: "Explosivos",  pct: 8,  color: "bg-orange-500" },
-  { label: "Outros",      pct: 4,  color: "bg-slate-400" },
+const barData = computed(() => ({
+  labels: productionData.map((d) => d.month),
+  datasets: [
+    {
+      label: "m³",
+      data: productionData.map((d) => d.value),
+      backgroundColor: "#6366f1",
+      hoverBackgroundColor: "#4f46e5",
+      borderRadius: 6,
+      borderSkipped: false,
+    },
+  ],
+}));
+
+const barOptions = computed(() => {
+  const textColor = uiStore.isDark ? "#94a3b8" : "#64748b";
+  const gridColor = uiStore.isDark ? "#2d3048" : "#e2e8f0";
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx: { parsed: { y: number | null } }) => ` ${ctx.parsed.y ?? 0} m³`,
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        border: { display: false },
+        ticks: { color: textColor, font: { size: 12 } },
+      },
+      y: {
+        grid: { color: gridColor },
+        border: { display: false },
+        ticks: { color: textColor, font: { size: 12 } },
+      },
+    },
+  };
+});
+
+// ── Doughnut chart ────────────────────────────────────────────────────────────
+
+const costData = [
+  { label: "Diesel",      value: 38, color: "#6366f1" },
+  { label: "Mão de Obra", value: 32, color: "#8b5cf6" },
+  { label: "Manutenção",  value: 18, color: "#60a5fa" },
+  { label: "Explosivos",  value: 8,  color: "#f97316" },
+  { label: "Outros",      value: 4,  color: "#94a3b8" },
 ];
+
+const doughnutData = computed(() => ({
+  labels: costData.map((d) => d.label),
+  datasets: [
+    {
+      data: costData.map((d) => d.value),
+      backgroundColor: costData.map((d) => d.color),
+      borderWidth: 0,
+      hoverOffset: 8,
+    },
+  ],
+}));
+
+const doughnutOptions = computed(() => {
+  const textColor = uiStore.isDark ? "#94a3b8" : "#64748b";
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: "68%",
+    plugins: {
+      legend: {
+        position: "bottom" as const,
+        labels: {
+          color: textColor,
+          padding: 12,
+          font: { size: 12 },
+          boxWidth: 10,
+          boxHeight: 10,
+          usePointStyle: true,
+          pointStyle: "circle" as const,
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: (ctx: { label: string; parsed: number }) => ` ${ctx.label}: ${ctx.parsed}%`,
+        },
+      },
+    },
+  };
+});
+
+// ── Recent activity ───────────────────────────────────────────────────────────
 
 const recentActivity = [
   { id: 1, type: "Extração", description: "Frente Norte — 42 t extraídas",          value: "42 t",      date: "29/04/2025", badge: "bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400" },

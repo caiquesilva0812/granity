@@ -26,7 +26,7 @@
       <div class="relative z-20">
         <button
           @click="dropdownOpen = !dropdownOpen"
-          class="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0 bg-gradient-to-br from-indigo-500 to-violet-600 hover:opacity-90 transition-opacity cursor-pointer"
+          class="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0 bg-blue-600 hover:opacity-90 transition-opacity cursor-pointer"
         >
           {{ initials() }}
         </button>
@@ -37,7 +37,7 @@
             class="absolute right-0 top-full mt-2 w-60 rounded-xl overflow-hidden shadow-xl border"
             :style="{ background: 'var(--surface)', borderColor: 'var(--border)' }"
           >
-            <div class="px-4 py-4 bg-gradient-to-br from-indigo-600 to-violet-700">
+            <div class="px-4 py-4 bg-blue-600">
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white font-semibold shrink-0">
                   {{ initials() }}

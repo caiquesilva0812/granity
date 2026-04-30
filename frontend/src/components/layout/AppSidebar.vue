@@ -1,9 +1,9 @@
 <template>
   <aside
-    class="fixed lg:static inset-y-0 left-0 z-30 w-56 lg:w-44 min-h-screen bg-gradient-to-b from-indigo-700 to-violet-800 flex flex-col shrink-0 transition-transform duration-300 ease-in-out"
+    class="fixed lg:static inset-y-0 left-0 z-30 w-56 lg:w-44 min-h-screen bg-blue-700 flex flex-col shrink-0 transition-transform duration-300 ease-in-out"
     :class="open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
   >
-    <div class="px-5 py-5 border-b border-white/10 flex items-center justify-between">
+    <div class="px-5 h-14 shrink-0 border-b border-white/10 flex items-center justify-between">
       <span class="text-white font-bold text-lg tracking-wide">Granity</span>
       <button
         @click="emit('close')"
@@ -13,12 +13,12 @@
       </button>
     </div>
 
-    <nav class="flex-1 py-3 flex flex-col gap-0.5 overflow-y-auto">
+    <nav class="flex-1 py-4 flex flex-col gap-1 overflow-y-auto">
       <RouterLink
         v-for="item in navItems"
         :key="item.to"
         :to="item.to"
-        class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-md text-sm transition-colors"
+        class="flex items-center gap-3 px-4 py-3.5 mx-2 rounded-md text-sm transition-colors"
         :class="
           isActive(item)
             ? 'bg-white/20 text-white font-medium'
@@ -51,7 +51,6 @@ import {
   Package,
   ShoppingCart,
   Users,
-  Settings,
   Building2,
   X,
 } from "lucide-vue-next";
@@ -68,7 +67,6 @@ const navItems = [
   { label: "Estoque",        to: "/estoque",       icon: Package },
   { label: "Vendas",         to: "/vendas",        icon: ShoppingCart },
   { label: "Funcionários",   to: "/funcionarios",  icon: Users },
-  { label: "Configurações",  to: "/configuracoes", icon: Settings },
 ];
 
 function isActive(item: { to: string; exact?: boolean }) {
