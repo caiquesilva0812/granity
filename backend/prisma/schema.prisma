@@ -1,0 +1,193 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum AppRole {
+  GESTOR
+  OPERACIONAL
+}
+
+enum CompanyType {
+  PEDREIRA
+  SERRARIA
+}
+
+enum Currency {
+  USD
+  BRL
+}
+
+enum BlockStatus {
+  DISPONIVEL
+  RESERVADO
+  VENDIDO
+}
+
+enum PhotoAngle {
+  FRENTE
+  TOPO
+  TRASEIRA
+  LATERAL_ESQ
+  LATERAL_DIR
+}
+
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt      @map("updated_at")
+  deletedAt    DateTime?               @map("deleted_at")
+
+  employees Employee[]
+
+  @@map("users")
+}
+
+// ─── Empresa ──────────────────────────────────────────────────────────────────
+
+model Company {
+  id        String      @id @default(uuid())
+  name      String
+  cnpj      String      @unique
+  address   String?
+  type      CompanyType @default(PEDREIRA)
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt      @map("updated_at")
+
+  employees     Employee[]
+  materialTypes MaterialType[]
+  blocks        Block[]
+  productions   Production[]
+
+  @@map("companies")
+}
+
+// ─── Funcionários ─────────────────────────────────────────────────────────────
+
+model Employee {
+  id         String    @id @default(uuid())
+  companyId  String    @map("company_id")
+  userId     String?   @map("user_id")
+  name       String
+  jobTitle   String?   @map("job_title")
+  appRole    AppRole?  @map("app_role")
+  cpf        String?
+  phone      String?
+  admittedAt DateTime? @map("admitted_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt      @map("updated_at")
+
+  company Company @relation(fields: [companyId], references: [id])
+  user    User?   @relation(fields: [userId],    references: [id])
+
+  @@unique([companyId, userId])
+  @@map("employees")
+}
+
+// ─── Material ─────────────────────────────────────────────────────────────────
+
+model MaterialType {
+  id          String   @id @default(uuid())
+  companyId   String   @map("company_id")
+  name        String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  company         Company                  @relation(fields: [companyId], references: [id])
+  classifications MaterialClassification[]
+  blocks          Block[]
+
+  @@map("material_types")
+}
+
+model MaterialClassification {
+  id             String   @id @default(uuid())
+  materialTypeId String   @map("material_type_id")
+  name           String
+  price          Decimal  @db.Decimal(10, 2)
+  currency       Currency @default(USD)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt      @map("updated_at")
+
+  materialType MaterialType @relation(fields: [materialTypeId], references: [id])
+  blocks       Block[]
+
+  @@map("material_classifications")
+}
+
+// ─── Blocos / Estoque ─────────────────────────────────────────────────────────
+
+model Block {
+  id                       String      @id @default(uuid())
+  companyId                String      @map("company_id")
+  code                     String
+
+  // Dimensões brutas
+  c                        Decimal     @db.Decimal(6, 2)
+  l                        Decimal     @db.Decimal(6, 2)
+  a                        Decimal     @db.Decimal(6, 2)
+
+  // Dimensões líquidas (padrão: c-0.10 / l-0.10 / a-0.05 — editável por irregularidade)
+  cNet                     Decimal     @map("c_net") @db.Decimal(6, 2)
+  lNet                     Decimal     @map("l_net") @db.Decimal(6, 2)
+  aNet                     Decimal     @map("a_net") @db.Decimal(6, 2)
+
+  materialTypeId           String?     @map("material_type_id")
+  materialClassificationId String?     @map("material_classification_id")
+  status                   BlockStatus @default(DISPONIVEL)
+  extractionFront          String?     @map("extraction_front")
+  extractedAt              DateTime?   @map("extracted_at")
+  notes                    String?
+  createdAt                DateTime    @default(now()) @map("created_at")
+  updatedAt                DateTime    @updatedAt      @map("updated_at")
+
+  company        Company                  @relation(fields: [companyId],               references: [id])
+  materialType   MaterialType?            @relation(fields: [materialTypeId],           references: [id])
+  classification MaterialClassification?  @relation(fields: [materialClassificationId], references: [id])
+  production     Production?
+  photos         BlockPhoto[]
+
+  @@unique([companyId, code])
+  @@map("blocks")
+}
+
+model BlockPhoto {
+  id        String     @id @default(uuid())
+  blockId   String     @map("block_id")
+  angle     PhotoAngle
+  url       String
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  block Block @relation(fields: [blockId], references: [id])
+
+  @@unique([blockId, angle])
+  @@map("block_photos")
+}
+
+// ─── Produção ─────────────────────────────────────────────────────────────────
+
+model Production {
+  id         String   @id @default(uuid())
+  companyId  String   @map("company_id")
+  blockId    String   @unique @map("block_id")
+  date       DateTime
+  front      String
+  laborCount Int?     @map("labor_count")
+  notes      String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  company Company @relation(fields: [companyId], references: [id])
+  block   Block   @relation(fields: [blockId],   references: [id])
+
+  @@map("productions")
+}

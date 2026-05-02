@@ -34,7 +34,8 @@ api.interceptors.response.use(
       useUiStore().decrementLoading();
     }
 
-    if (error.response?.status === 401) {
+    const isAuthEndpoint = error.config?.url?.includes("/auth/");
+    if (error.response?.status === 401 && !isAuthEndpoint) {
       localStorage.removeItem("access_token");
       router.push({ name: "login" });
     }

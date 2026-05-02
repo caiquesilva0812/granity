@@ -13,7 +13,7 @@ app.use(pinia);
 app.use(router);
 app.use(Toast, {
   position: "top-center",
-  timeout: 8000,
+  timeout: 5000,
   closeOnClick: true,
   pauseOnHover: true,
   hideProgressBar: true,

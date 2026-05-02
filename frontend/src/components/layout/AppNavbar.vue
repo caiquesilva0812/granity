@@ -43,7 +43,7 @@
                   {{ initials() }}
                 </div>
                 <div class="min-w-0">
-                  <p class="text-sm font-semibold text-white truncate">{{ authStore.currentUser?.name ?? "Caique Silva" }}</p>
+                  <p class="text-sm font-semibold text-white truncate">{{ displayName() }}</p>
                   <p class="text-xs text-white/60 mt-0.5 truncate">{{ authStore.currentUser?.email ?? "caique@granity.com" }}</p>
                 </div>
               </div>
@@ -118,7 +118,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter, RouterLink } from "vue-router";
-import { Bell, ChevronDown, Menu, Moon, UserRound, Settings, CircleHelp, ExternalLink, LogOut } from "lucide-vue-next";
+import { Bell, Menu, Moon, UserRound, Settings, CircleHelp, ExternalLink, LogOut } from "lucide-vue-next";
 import { useUiStore } from "../../stores/ui";
 import { useAuthStore } from "../../stores/auth";
 
@@ -129,11 +129,18 @@ const authStore = useAuthStore();
 const router = useRouter();
 const dropdownOpen = ref(false);
 
+const displayName = () => {
+  const user = authStore.currentUser;
+  if (!user) return "";
+  if (user.name) return user.name;
+  return user.email.split("@")[0];
+};
+
 const initials = () => {
-  const name = authStore.currentUser?.name ?? "Caique Silva";
-  const parts = name.trim().split(/\s+/);
+  const name  = displayName();
+  const parts = name.trim().split(/[\s._-]+/);
   const first = parts[0]?.[0] ?? "";
-  const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
+  const last  = parts.length > 1 ? parts[parts.length - 1][0] : parts[0]?.[1] ?? "";
   return (first + last).toUpperCase();
 };
 
