@@ -24,7 +24,8 @@ const routes: RouteRecordRaw[] = [
       { path: "funcionarios",          name: "employee-index",    component: () => import("../views/employees/EmployeeIndexView.vue") },
       { path: "configuracoes",         name: "settings",          component: () => import("../views/settings/SettingsView.vue") },
       { path: "configuracoes/empresa", name: "settings-empresa",  component: () => import("../views/settings/SettingsEmpresaView.vue") },
-      { path: "configuracoes/usuarios",name: "settings-usuarios", component: () => import("../views/settings/SettingsUsuariosView.vue") },
+      { path: "configuracoes/usuarios",       name: "settings-usuarios",  component: () => import("../views/settings/SettingsUsuariosView.vue") },
+      { path: "configuracoes/tipos-material", name: "material-types",     component: () => import("../views/materials/MaterialTypeIndexView.vue") },
     ],
   },
 ];

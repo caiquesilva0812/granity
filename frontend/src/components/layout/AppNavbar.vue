@@ -121,12 +121,14 @@ import { useRouter, RouterLink } from "vue-router";
 import { Bell, Menu, Moon, UserRound, Settings, CircleHelp, ExternalLink, LogOut } from "lucide-vue-next";
 import { useUiStore } from "../../stores/ui";
 import { useAuthStore } from "../../stores/auth";
+import { useCompanyStore } from "../../stores/company";
 
 const emit = defineEmits<{ toggleSidebar: [] }>();
 
-const uiStore = useUiStore();
-const authStore = useAuthStore();
-const router = useRouter();
+const uiStore      = useUiStore();
+const authStore    = useAuthStore();
+const companyStore = useCompanyStore();
+const router       = useRouter();
 const dropdownOpen = ref(false);
 
 const displayName = () => {
@@ -147,6 +149,7 @@ const initials = () => {
 function logout() {
   dropdownOpen.value = false;
   authStore.logout();
+  companyStore.clear();
   router.push({ name: "login" });
 }
 </script>

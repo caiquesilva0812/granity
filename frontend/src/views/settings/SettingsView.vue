@@ -55,7 +55,7 @@ const sections = [
   {
     title: "Operacional",
     items: [
-      { label: "Tipos de Material",    icon: Gem,   to: null },
+      { label: "Tipos de Material",    icon: Gem,   to: "/configuracoes/tipos-material" },
       { label: "Categorias de Custo",  icon: Tag,   to: null },
       { label: "Unidades de Medida",   icon: Scale, to: null },
     ],

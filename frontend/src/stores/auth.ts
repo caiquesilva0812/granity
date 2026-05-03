@@ -3,12 +3,12 @@ import { useToast } from "vue-toastification";
 import api from "../helpers/api";
 import { extractErrorMessage } from "../helpers/apiError";
 
-const TOKEN_KEY = "access_token";
+type AuthUser = { id: string; email: string; name?: string };
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
-    user:  null as { id: string; email: string; name?: string } | null,
-    token: localStorage.getItem(TOKEN_KEY) || null,
+    user:  null as AuthUser | null,
+    token: null as string | null,
   }),
 
   getters: {
@@ -20,10 +20,9 @@ export const useAuthStore = defineStore("auth", {
     async login(email: string, password: string): Promise<boolean> {
       const toast = useToast();
       try {
-        const res = await api.post("/api/v1/auth/login", { email, password });
+        const res  = await api.post("/api/v1/auth/login", { email, password });
         this.token = res.data.accessToken;
         this.user  = res.data.user ?? null;
-        localStorage.setItem(TOKEN_KEY, res.data.accessToken);
         return true;
       } catch (error) {
         toast.error(extractErrorMessage(error, "Credenciais inválidas."));
@@ -31,19 +30,14 @@ export const useAuthStore = defineStore("auth", {
       }
     },
 
-    async fetchMe(): Promise<void> {
-      try {
-        const res  = await api.get("/api/v1/auth/me");
-        this.user  = res.data;
-      } catch {
-        // silencioso — sessão pode ser restaurada sem dados do usuário
-      }
-    },
-
     logout(): void {
       this.token = null;
       this.user  = null;
-      localStorage.removeItem(TOKEN_KEY);
     },
+  },
+
+  persist: {
+    key:  "auth",
+    pick: ["token", "user"],
   },
 });
