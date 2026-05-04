@@ -1,6 +1,6 @@
 <template>
   <aside
-    class="fixed lg:static inset-y-0 left-0 z-30 w-56 lg:w-44 min-h-screen bg-blue-700 flex flex-col shrink-0 transition-transform duration-300 ease-in-out"
+    class="fixed lg:static inset-y-0 left-0 z-30 w-56 lg:w-44 min-h-screen bg-brand flex flex-col shrink-0 transition-transform duration-300 ease-in-out"
     :class="open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
   >
     <div class="px-5 h-14 shrink-0 border-b border-white/10 flex items-center justify-between">
@@ -32,8 +32,9 @@
 
     <div class="p-3 border-t border-white/10">
       <RouterLink
-        to="/empresas"
-        class="flex items-center gap-3 px-4 py-2.5 rounded-md text-sm text-white/65 hover:text-white hover:bg-white/10 transition-colors"
+        to="/companies"
+        class="flex items-center gap-3 px-4 py-2.5 rounded-md text-sm transition-colors"
+        :class="route.name === 'company-selection' ? 'bg-white/20 text-white font-medium' : 'text-white/65 hover:text-white hover:bg-white/10'"
       >
         <Building2 class="w-4 h-4 shrink-0" />
         <span>Empresas</span>
@@ -46,7 +47,6 @@
 import { useRoute, RouterLink } from "vue-router";
 import {
   LayoutDashboard,
-  Layers,
   Wallet,
   Package,
   ShoppingCart,
@@ -62,7 +62,6 @@ const route = useRoute();
 
 const navItems = [
   { label: "Dashboard",      to: "/",              icon: LayoutDashboard, exact: true },
-  { label: "Produção",       to: "/producao",      icon: Layers },
   { label: "Custos",         to: "/custos",        icon: Wallet },
   { label: "Estoque",        to: "/estoque",       icon: Package },
   { label: "Vendas",         to: "/vendas",        icon: ShoppingCart },

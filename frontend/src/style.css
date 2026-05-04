@@ -5,6 +5,10 @@
 @theme {
   --color-primary:       #6366f1;
   --color-primary-hover: #4f46e5;
+
+  /* Cor da sidebar e elementos de marca (header do dropdown, logo) */
+  --color-brand:         #1a3a8a;
+  --color-brand-hover:   #15306e;
 }
 
 /* ─── Light mode ────────────────────────────────────────── */

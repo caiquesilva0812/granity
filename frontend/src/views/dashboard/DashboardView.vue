@@ -3,7 +3,6 @@
     <div class="flex flex-wrap items-start justify-between gap-3">
       <div>
         <h1 class="text-xl lg:text-2xl font-bold" :style="{ color: 'var(--text)' }">Dashboard</h1>
-        <p class="text-sm mt-0.5" :style="{ color: 'var(--text-muted)' }">Pedreira Serra Verde — Abril 2025</p>
       </div>
     </div>
 

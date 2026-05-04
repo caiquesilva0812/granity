@@ -163,6 +163,6 @@ function validate(): boolean {
 async function handleLogin() {
   if (!validate()) return;
   const success = await authStore.login(email.value, password.value);
-  if (success) router.push({ name: "dashboard" });
+  if (success) router.push({ name: "company-selection" });
 }
 </script>

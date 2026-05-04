@@ -12,6 +12,13 @@ export interface Company {
   createdAt: string;
 }
 
+export interface CreateCompanyPayload {
+  name:     string;
+  cnpj:     string;
+  type:     "PEDREIRA" | "SERRARIA";
+  address?: string;
+}
+
 export const useCompanyStore = defineStore("company", {
   state: () => ({
     companies:  [] as Company[],
@@ -30,12 +37,21 @@ export const useCompanyStore = defineStore("company", {
       try {
         const res      = await api.get<Company[]>("/api/v1/companies");
         this.companies = res.data;
-
-        if (!this.selectedId && res.data.length === 1) {
-          this.selectedId = res.data[0].id;
-        }
       } catch (error) {
         toast.error(extractErrorMessage(error, "Erro ao carregar empresas."));
+      }
+    },
+
+    async createCompany(payload: CreateCompanyPayload): Promise<Company | null> {
+      const toast = useToast();
+      try {
+        const res = await api.post<Company>("/api/v1/companies", payload);
+        this.companies.push(res.data);
+        this.selectedId = res.data.id;
+        return res.data;
+      } catch (error) {
+        toast.error(extractErrorMessage(error, "Erro ao criar empresa."));
+        return null;
       }
     },
 
@@ -51,6 +67,6 @@ export const useCompanyStore = defineStore("company", {
 
   persist: {
     key:  "company",
-    pick: ["selectedId"],
+    pick: ["selectedId", "companies"],
   },
 });

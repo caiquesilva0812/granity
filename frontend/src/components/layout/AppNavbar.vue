@@ -11,7 +11,20 @@
       <Menu class="w-5 h-5" />
     </button>
 
-    <span class="hidden lg:block" />
+    <div v-if="companyStore.selected" class="hidden lg:flex items-center gap-2">
+      <span class="text-base font-bold" :style="{ color: 'var(--text)' }">
+        {{ companyStore.selected.name }}
+      </span>
+      <span
+        class="text-xs font-medium px-2 py-0.5 rounded-md"
+        :class="companyStore.selected.type === 'PEDREIRA'
+          ? 'bg-blue-500/10 text-blue-500'
+          : 'bg-amber-500/10 text-amber-500'"
+      >
+        {{ companyStore.selected.type === 'PEDREIRA' ? 'Pedreira' : 'Serraria' }}
+      </span>
+    </div>
+    <span v-else class="hidden lg:block" />
 
     <div class="flex items-center gap-2 lg:gap-3">
       <button
@@ -26,7 +39,7 @@
       <div class="relative z-20">
         <button
           @click="dropdownOpen = !dropdownOpen"
-          class="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0 bg-blue-600 hover:opacity-90 transition-opacity cursor-pointer"
+          class="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0 bg-brand hover:bg-brand-hover transition-colors cursor-pointer"
         >
           {{ initials() }}
         </button>
@@ -37,7 +50,7 @@
             class="absolute right-0 top-full mt-2 w-60 rounded-xl overflow-hidden shadow-xl border"
             :style="{ background: 'var(--surface)', borderColor: 'var(--border)' }"
           >
-            <div class="px-4 py-4 bg-blue-600">
+            <div class="px-4 py-4 bg-brand">
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white font-semibold shrink-0">
                   {{ initials() }}

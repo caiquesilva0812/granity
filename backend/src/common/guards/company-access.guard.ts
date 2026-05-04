@@ -19,7 +19,7 @@ export class CompanyAccessGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req       = context.switchToHttp().getRequest<Request & { user: JwtPayload }>();
-    const companyId = req.params['companyId'];
+    const companyId = req.params['companyId'] as string;
 
     if (!companyId) return true;
 

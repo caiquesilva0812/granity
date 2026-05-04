@@ -155,7 +155,8 @@ model Block {
   materialType   MaterialType?            @relation(fields: [materialTypeId],           references: [id])
   classification MaterialClassification?  @relation(fields: [materialClassificationId], references: [id])
   production     Production?
-  photos         BlockPhoto[]
+  photos             BlockPhoto[]
+  observationPhotos  BlockObservationPhoto[]
 
   @@unique([companyId, code])
   @@map("blocks")
@@ -172,6 +173,18 @@ model BlockPhoto {
 
   @@unique([blockId, angle])
   @@map("block_photos")
+}
+
+model BlockObservationPhoto {
+  id        String   @id @default(uuid())
+  blockId   String   @map("block_id")
+  url       String
+  caption   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  block Block @relation(fields: [blockId], references: [id], onDelete: Cascade)
+
+  @@map("block_observation_photos")
 }
 
 // ─── Produção ─────────────────────────────────────────────────────────────────
