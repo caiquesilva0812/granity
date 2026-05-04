@@ -253,7 +253,7 @@ function statusBadge(status: string): string {
 }
 
 const fmt     = (v: number) => v.toFixed(2).replace(".", ",");
-const fmtVol  = (v: number) => `${v.toFixed(2).replace(".", ",")} m³`;
+const fmtVol  = (v: number) => `${v.toFixed(3).replace(".", ",")} m³`;
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("pt-BR");
 const fmtUSD  = (v: number) => v.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 const fmtBRL  = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });

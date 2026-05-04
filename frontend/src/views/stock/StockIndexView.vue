@@ -52,6 +52,7 @@
         </div>
         <p class="text-2xl lg:text-3xl font-bold tabular-nums" :style="{ color: 'var(--text)' }">{{ s.value }}</p>
         <p class="text-xs mt-0.5" :style="{ color: 'var(--text-muted)' }">{{ s.sub }}</p>
+        <p v-if="s.sub2" class="text-xs mt-1 font-medium" :class="s.sub2Class ?? 'text-[var(--text-muted)]'">{{ s.sub2 }}</p>
       </div>
 
       <!-- Valor total estimado -->
@@ -263,7 +264,7 @@ function statusBadge(status: string): string {
 // ── Formatação ─────────────────────────────────────────────────────────────
 const fmt    = (v: number) => v.toFixed(2).replace(".", ",");
 const fmtDim = (c: number, l: number, a: number) => `${fmt(c)} × ${fmt(l)} × ${fmt(a)} m`;
-const fmtVol = (v: number) => `${v.toFixed(2).replace(".", ",")} m³`;
+const fmtVol = (v: number) => `${v.toFixed(3).replace(".", ",")} m³`;
 const fmtUSD = (v: number) => v.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 const fmtBRL = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
@@ -286,9 +287,12 @@ const totalEstimatedUSD = computed(() =>
     .reduce((sum, b) => sum + b.classificationPrice! * b.volumeNet, 0),
 );
 
-const summaryCards = computed(() => {
-  const blocks   = blocksStore.blocks;
-  const totalVol = blocks.reduce((s, b) => s + b.volumeGross, 0);
+type SummaryCard = { label: string; value: string; sub: string; sub2?: string; sub2Class?: string; icon: unknown; iconBg: string; iconColor: string };
+
+const summaryCards = computed((): SummaryCard[] => {
+  const blocks        = blocksStore.blocks;
+  const totalVolGross = blocks.reduce((s, b) => s + b.volumeGross, 0);
+  const totalVolNet   = blocks.reduce((s, b) => s + b.volumeNet,   0);
   return [
     {
       label:     "Total em Estoque",
@@ -300,8 +304,10 @@ const summaryCards = computed(() => {
     },
     {
       label:     "Volume Total",
-      value:     totalVol.toFixed(1).replace(".", ","),
-      sub:       "m³ extraídos",
+      value:     totalVolGross.toFixed(1).replace(".", ","),
+      sub:       "m³ bruto",
+      sub2:      `${totalVolNet.toFixed(1).replace(".", ",")} m³ líquido`,
+      sub2Class: "text-indigo-500",
       icon:      Layers,
       iconBg:    "bg-indigo-500/10",
       iconColor: "text-indigo-500",

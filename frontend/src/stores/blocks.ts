@@ -43,6 +43,7 @@ export interface Block {
 }
 
 export interface CreateBlockPayload {
+  code:                      string;
   c:                         number;
   l:                         number;
   a:                         number;
@@ -56,8 +57,6 @@ export interface CreateBlockPayload {
   notes?:                    string;
 }
 
-// Prefixes relative /uploads/... paths with the API base so components
-// never need to construct URLs themselves.
 function normalizeBlock(raw: Block): Block {
   return {
     ...raw,
@@ -78,20 +77,6 @@ export const useBlocksStore = defineStore("blocks", {
   state: () => ({
     blocks: [] as Block[],
   }),
-
-  getters: {
-    totalVolumeGross: (state) =>
-      state.blocks.reduce((sum, b) => sum + b.volumeGross, 0),
-
-    lastExtractionDate: (state): string | null => {
-      const dates = state.blocks
-        .map((b) => b.extractedAt)
-        .filter((d): d is string => !!d)
-        .sort()
-        .reverse();
-      return dates[0] ?? null;
-    },
-  },
 
   actions: {
     async fetchBlocks(companyId: string): Promise<void> {

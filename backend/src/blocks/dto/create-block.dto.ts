@@ -5,9 +5,14 @@ import {
   IsString,
   IsUUID,
   Min,
+  MinLength,
 } from 'class-validator';
 
 export class CreateBlockDto {
+  @IsString()
+  @MinLength(1)
+  code: string;
+
   @IsNumber()
   @Min(0.01)
   c: number;

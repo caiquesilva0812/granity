@@ -5,6 +5,7 @@ import { StorageService } from './storage.service';
 import { BlockResponseDto } from './dto/block-response.dto';
 import { CreateBlockDto } from './dto/create-block.dto';
 
+
 const INCLUDE = {
   materialType:      true,
   classification:    true,
@@ -29,15 +30,14 @@ export class BlocksService {
   }
 
   async create(companyId: string, dto: CreateBlockDto): Promise<BlockResponseDto> {
-    const code = await this.generateCode(companyId);
     const cNet = dto.cNet ?? Number((dto.c - 0.10).toFixed(2));
-    const lNet = dto.lNet ?? Number((dto.l - 0.10).toFixed(2));
+    const lNet = dto.lNet ?? Number((dto.l - 0.05).toFixed(2));
     const aNet = dto.aNet ?? Number((dto.a - 0.05).toFixed(2));
 
     const block = await this.prisma.block.create({
       data: {
         companyId,
-        code,
+        code: dto.code,
         c: dto.c, l: dto.l, a: dto.a,
         cNet, lNet, aNet,
         materialTypeId:           dto.materialTypeId,
@@ -57,9 +57,9 @@ export class BlocksService {
     angle:     PhotoAngle,
     file:      Express.Multer.File,
   ): Promise<BlockResponseDto> {
-    await this.findOrThrow(companyId, blockId);
+    const block = await this.findOrThrow(companyId, blockId);
 
-    const url = this.storage.save(file);
+    const url = this.storage.save(file, companyId, block.code);
 
     await this.prisma.blockPhoto.upsert({
       where:  { blockId_angle: { blockId, angle } },
@@ -76,9 +76,9 @@ export class BlocksService {
     file:      Express.Multer.File,
     caption?:  string,
   ): Promise<BlockResponseDto> {
-    await this.findOrThrow(companyId, blockId);
+    const block = await this.findOrThrow(companyId, blockId);
 
-    const url = this.storage.save(file);
+    const url = this.storage.save(file, companyId, block.code);
 
     await this.prisma.blockObservationPhoto.create({
       data: { blockId, url, caption },
@@ -117,13 +117,4 @@ export class BlocksService {
     return new BlockResponseDto(block);
   }
 
-  private async generateCode(companyId: string): Promise<string> {
-    const last = await this.prisma.block.findFirst({
-      where:   { companyId },
-      orderBy: { createdAt: 'desc' },
-      select:  { code: true },
-    });
-    const lastNum = last ? parseInt(last.code.split('-')[1] ?? '0', 10) : 0;
-    return `BLK-${String(lastNum + 1).padStart(4, '0')}`;
-  }
 }

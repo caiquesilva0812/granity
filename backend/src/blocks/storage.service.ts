@@ -18,15 +18,18 @@ export class StorageService {
     }
   }
 
-  save(file: Express.Multer.File): string {
+  save(file: Express.Multer.File, companyId: string, blockCode: string): string {
+    const dir = join(this.uploadsDir, companyId, blockCode);
+    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+
     const filename = `${randomUUID()}${extname(file.originalname)}`;
-    writeFileSync(join(this.uploadsDir, filename), file.buffer);
-    return `/uploads/${filename}`;
+    writeFileSync(join(dir, filename), file.buffer);
+    return `/uploads/${companyId}/${blockCode}/${filename}`;
   }
 
   delete(url: string): void {
-    const filename = url.replace('/uploads/', '');
-    const filepath  = join(this.uploadsDir, filename);
+    const relativePath = url.replace('/uploads/', '');
+    const filepath     = join(this.uploadsDir, relativePath);
     if (existsSync(filepath)) unlinkSync(filepath);
   }
 }

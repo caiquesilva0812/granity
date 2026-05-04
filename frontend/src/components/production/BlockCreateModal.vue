@@ -36,6 +36,21 @@
             <!-- ── 1. Identificação ─────────────────────────────────────── -->
             <div class="px-5 py-5 space-y-3">
               <p class="text-xs font-semibold uppercase tracking-wide" :style="{ color: 'var(--text-muted)' }">Identificação</p>
+
+              <div class="space-y-1.5">
+                <label class="block text-sm font-medium" :style="{ color: 'var(--text)' }">
+                  Código do Bloco <span class="text-red-400">*</span>
+                </label>
+                <input
+                  v-model="form.code"
+                  type="text"
+                  placeholder="Ex: BLK-0001"
+                  class="w-full px-3 py-2.5 rounded-lg border text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  :style="{ background: 'var(--canvas)', borderColor: errors.code ? '#ef4444' : 'var(--border)', color: 'var(--text)' }"
+                />
+                <p v-if="errors.code" class="text-xs text-red-500">{{ errors.code }}</p>
+              </div>
+
               <div class="grid grid-cols-2 gap-3">
                 <div class="space-y-1.5">
                   <label class="block text-sm font-medium" :style="{ color: 'var(--text)' }">
@@ -173,11 +188,11 @@
                   <div class="grid grid-cols-2 gap-2">
                     <div class="rounded-lg p-3" :style="{ background: 'var(--canvas)' }">
                       <p class="text-xs mb-1" :style="{ color: 'var(--text-muted)' }">Vol. Bruto</p>
-                      <p class="text-sm font-bold tabular-nums text-indigo-500">{{ volumeGross.toFixed(3) }} m³</p>
+                      <p class="text-sm font-bold tabular-nums text-indigo-500">{{ volumeGross.toFixed(3).replace(".", ",") }} m³</p>
                     </div>
                     <div class="rounded-lg p-3" :style="{ background: 'var(--canvas)' }">
                       <p class="text-xs mb-1" :style="{ color: 'var(--text-muted)' }">Vol. Líquido</p>
-                      <p class="text-sm font-bold tabular-nums" :style="{ color: 'var(--text)' }">{{ volumeNet.toFixed(3) }} m³</p>
+                      <p class="text-sm font-bold tabular-nums" :style="{ color: 'var(--text)' }">{{ volumeNet.toFixed(3).replace(".", ",") }} m³</p>
                     </div>
                   </div>
                   <div v-if="estimatedValue > 0" class="rounded-lg p-3 border border-green-200 dark:border-green-500/20 bg-green-50 dark:bg-green-500/10">
@@ -410,17 +425,19 @@ const saving               = ref(false);
 const savingLabel          = ref("Salvando...");
 
 const form = reactive({
+  code: "",
   c: null as number | null, l: null as number | null, a: null as number | null,
   materialTypeId: "", materialClassificationId: "",
   extractionFront: "", extractedAt: "", notes: "",
 });
 
 const errors = reactive({
-  extractedAt: "", materialTypeId: "", materialClassificationId: "",
+  code: "", extractedAt: "", materialTypeId: "", materialClassificationId: "",
   c: "", l: "", a: "",
 });
 
 const schema = z.object({
+  code:                     z.string().min(1, "Código é obrigatório."),
   extractedAt:              z.string().min(1, "Data da extração é obrigatória."),
   materialTypeId:           z.string().min(1, "Selecione o tipo de material."),
   materialClassificationId: z.string().min(1, "Selecione a classificação."),
@@ -438,7 +455,7 @@ const volumeGross = computed(() => {
 const volumeNet = computed(() => {
   const { c, l, a } = form;
   if (!c || !l || !a) return 0;
-  return Math.max(0, (c - 0.10) * (l - 0.10) * (a - 0.05));
+  return Math.max(0, (c - 0.10) * (l - 0.05) * (a - 0.05));
 });
 
 const estimatedValue = computed(() => {
@@ -458,11 +475,11 @@ function selectMaterialType(mt: MaterialType) {
 }
 
 function resetForm() {
-  form.c = null; form.l = null; form.a = null;
+  form.code = ""; form.c = null; form.l = null; form.a = null;
   form.materialTypeId = ""; form.materialClassificationId = "";
   form.extractionFront = ""; form.extractedAt = ""; form.notes = "";
   selectedMaterialType.value = null;
-  Object.assign(errors, { extractedAt: "", materialTypeId: "", materialClassificationId: "", c: "", l: "", a: "" });
+  Object.assign(errors, { code: "", extractedAt: "", materialTypeId: "", materialClassificationId: "", c: "", l: "", a: "" });
 
   Object.values(anglePreviews.value).forEach((url) => URL.revokeObjectURL(url));
   obsPreviews.value.forEach((url) => URL.revokeObjectURL(url));
@@ -472,15 +489,17 @@ function resetForm() {
 
 function validate(): boolean {
   const result = schema.safeParse({
-    extractedAt: form.extractedAt, materialTypeId: form.materialTypeId,
+    code: form.code, extractedAt: form.extractedAt,
+    materialTypeId: form.materialTypeId,
     materialClassificationId: form.materialClassificationId,
     c: form.c, l: form.l, a: form.a,
   });
   if (result.success) {
-    Object.assign(errors, { extractedAt: "", materialTypeId: "", materialClassificationId: "", c: "", l: "", a: "" });
+    Object.assign(errors, { code: "", extractedAt: "", materialTypeId: "", materialClassificationId: "", c: "", l: "", a: "" });
     return true;
   }
   const fe = result.error.flatten().fieldErrors;
+  errors.code                     = fe.code?.[0]                     ?? "";
   errors.extractedAt              = fe.extractedAt?.[0]              ?? "";
   errors.materialTypeId           = fe.materialTypeId?.[0]           ?? "";
   errors.materialClassificationId = fe.materialClassificationId?.[0] ?? "";
@@ -493,6 +512,7 @@ async function handleSubmit() {
   saving.value = true;
 
   const block = await blocksStore.createBlock(companyStore.selectedId, {
+    code: form.code,
     c: form.c!, l: form.l!, a: form.a!,
     materialTypeId:           form.materialTypeId           || undefined,
     materialClassificationId: form.materialClassificationId || undefined,
